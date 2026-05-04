@@ -70,8 +70,10 @@ def example_basic_usage():
     
     # 2. Hitung Echo Score antara dua paper
     print("\n2. Menghitung Echo Score...")
-    emb1 = graph.hetero_data['paper'].x[0].numpy()
-    emb2 = graph.hetero_data['paper'].x[1].numpy()
+    # Akses embedding dari hetero_data setelah finalize
+    paper_features = hetero_data['paper'].x  # Shape: [num_papers, embedding_dim]
+    emb1 = paper_features[0].numpy() if hasattr(paper_features[0], 'numpy') else paper_features[0]
+    emb2 = paper_features[1].numpy() if hasattr(paper_features[1], 'numpy') else paper_features[1]
     
     score = echo_score(emb1, emb2)
     print(f"   - Echo Score antara Paper 1 dan 2: {score:.4f}")
