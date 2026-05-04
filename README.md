@@ -7,27 +7,35 @@
 
 > *"Sitasi adalah percakapan. AI seharusnya membaca nada dan jedanya, bukan hanya menghitung volume suaranya."*
 
-**Semantic Echo** melampaui analisis sitasi tradisional yang hanya menghitung *edge* (siapa mengutip siapa). Proyek ini menggunakan **Graph Neural Networks (GNN)** untuk mengukur **kedalaman pengaruh** (`influence depth`): Seberapa banyak "DNA konseptual" *Paper A* mengubah vektor penelitian *Paper B*.
+## 📖 Deskripsi
 
-### 🎯 Mengapa Ini Penting?
-Metrik seperti H-index atau jumlah sitasi tidak bisa membedakan antara kutipan "sekilas" (*perfunctory citation*) dengan kutipan yang menunjukkan perubahan arah riset fundamental. Dengan merepresentasikan makalah sebagai *node* dalam graf heterogen yang kaya fitur, kita bisa mengukur *semantic influence* yang sebenarnya.
+**Semantic Echo** adalah framework analisis sitasi berbasis **Graph Neural Networks (GNN)** yang mengukur **kedalaman pengaruh konseptual** (`influence depth`) antar karya ilmiah. Berbeda dengan metrik tradisional seperti H-index atau jumlah sitasi yang hanya menghitung kuantitas, Semantic Echo menganalisis **kualitas dan kedalaman pengaruh** dengan cara membandingkan perubahan vektor representasi makalah sebelum dan setelah sitasi terjadi.
+
+### 🎯 Masalah yang Diselesaikan
+
+Metrik sitasi konvensional tidak dapat membedakan antara:
+- **Kutipan perfunctory** (sekilas/formalitas) 
+- **Kutipan transformatif** (yang mengubah arah penelitian fundamental)
+
+Semantic Echo menjawab pertanyaan: *"Seberapa banyak 'DNA konseptual' Paper A mengubah vektor penelitian Paper B?"*
 
 ### 🧠 Pendekatan Teknis
-1.  **Konstruksi Graf Heterogen Dinamis**:
-    - Node: Makalah, Penulis, Jurnal, Institusi, Kata Kunci (Keyphrase).
-    - Edge: Sitasi, Co-Authorship, Publikasi di, Afiliasi, Kesamaan Semantik.
-    - Model ini mengadopsi pendekatan serupa dengan **Heterogeneous Dynamical Graph Neural Network (SI-HDGNN)** untuk memodelkan graf akademik yang berbobot, terarah, dan teratribusi.
 
-2.  **Arsitektur GNN**:
-    - Menggunakan **GraphSAGE** atau **GAT (Graph Attention Networks)** untuk agregasi tetangga.
-    - **Node Features**: *Embedding* teks dari abstrak (menggunakan **SciBERT**), fitur struktural (degree centrality), dan fitur temporal (tahun publikasi).
-    - Tujuannya adalah menghasilkan *vectorized representations* untuk setiap node yang dapat di-train untuk memprediksi pengaruh.
+1. **Konstruksi Graf Heterogen Dinamis**:
+   - **Node**: Makalah, Penulis, Jurnal, Institusi, Kata Kunci (Keyphrase)
+   - **Edge**: Sitasi, Co-Authorship, Publikasi di, Afiliasi, Kesamaan Semantik
+   - Mengadopsi pendekatan **Heterogeneous Dynamical Graph Neural Network (SI-HDGNN)** untuk graf akademik berbobot, terarah, dan teratribusi
 
-3.  **Metrik "Semantic Echo"**:
-    - Bukan hanya skor prediksi link, tetapi **cosine similarity** antara vektor *Paper A* pada waktu `t` dengan vektor *Paper B* pada waktu `t+n`.
-    - Mengukur perubahan *embedding space* yang disebabkan oleh kemunculan suatu karya.
+2. **Arsitektur GNN**:
+   - Menggunakan **GraphSAGE** atau **GAT (Graph Attention Networks)** untuk agregasi tetangga
+   - **Node Features**: Embedding teks dari abstrak (menggunakan **SciBERT**), fitur struktural (degree centrality), dan fitur temporal (tahun publikasi)
+   - Menghasilkan *vectorized representations* untuk setiap node yang dapat di-train
 
-### 📦 Instalasi & Penggunaan Cepat
+3. **Metrik "Semantic Echo"**:
+   - Mengukur **cosine similarity** antara vektor Paper A pada waktu `t` dengan vektor Paper B pada waktu `t+n`
+   - Bukan sekadar prediksi link, tetapi **perubahan embedding space** yang disebabkan oleh kemunculan suatu karya
+
+## 🚀 Instalasi Cepat
 
 ```bash
 # 1. Clone repositori
@@ -38,11 +46,15 @@ cd citation-graph-neural-embedding
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 
-# 3. Instal dependensi
+# 3. Instal semua dependensi
 pip install -r requirements.txt
+
+# 4. Instal package untuk pengembangan (opsional)
+pip install -e .
 ```
 
-**Contoh penggunaan dasar:**
+## 💻 Penggunaan Dasar
+
 ```python
 from semantic_echo import CitationGraph, InfluencePredictor
 
@@ -58,20 +70,65 @@ score = predictor.echo_score(source_doi="10.xxx/paper1", target_doi="10.xxx/pape
 print(f"Kedalaman pengaruh: {score:.4f}")
 ```
 
-### 📚 Dataset Target
-- **OpenAlex**: API terbuka dengan data sitasi lengkap.
-- **arXiv + Semantic Scholar**: Untuk data teks dan graf.
-- **DBLP**: Data publikasi ilmu komputer.
+## 📦 Struktur Repositori
 
-### 🚧 Roadmap
-- [ ] Implementasi dasar GCN/GAT dengan PyTorch Geometric.
-- [ ] Integrasi SciBERT untuk *node features*.
-- [ ] Skrip *scraper* untuk OpenAlex.
-- [ ] Evaluasi terhadap metrik "Disruption Index" sebagai baseline.
-
-### 🤝 Kontribusi
-Kami sangat terbuka untuk kontribusi! Lihat [CONTRIBUTING.md](CONTRIBUTING.md) dan [Issues](https://github.com/stipwunaraha/citation-graph-neural-embedding/issues) untuk memulai.
-
-### 📄 Lisensi
-Proyek ini dilisensikan di bawah Lisensi MIT - lihat berkas [LICENSE](LICENSE) untuk detail.
 ```
+citation-graph-neural-embedding/
+├── semantic_echo/       # Source code utama
+│   ├── __init__.py      # Inisialisasi package
+│   ├── data_loader.py   # Loader dataset (OpenAlex, arXiv, DBLP)
+│   ├── embeddings.py    # Pembangkitan embedding (SciBERT, dll.)
+│   ├── graph.py         # Konstruksi dan manipulasi graf
+│   ├── models.py        # Model GNN (GraphSAGE, GAT, dll.)
+│   └── metrics.py       # Metrik evaluasi (Echo Score, dll.)
+├── tests/               # Unit test dan integration test
+├── configs/             # File konfigurasi YAML
+├── examples/            # Contoh penggunaan dan notebook
+├── utils/               # Fungsi utilitas tambahan
+├── requirements.txt     # Daftar dependensi Python
+├── setup.py            # Setup script untuk instalasi package
+└── docs/               # Dokumentasi lengkap
+```
+
+## 📊 Dataset Target
+
+- **OpenAlex**: API terbuka dengan data sitasi lengkap
+- **arXiv + Semantic Scholar**: Untuk data teks dan graf sitasi
+- **DBLP**: Data publikasi ilmu komputer
+
+## 🛠️ Teknologi Utama
+
+| Kategori | Library/Framework |
+|----------|------------------|
+| Deep Learning | PyTorch ≥ 2.0, PyTorch Geometric ≥ 2.3 |
+| NLP | Transformers (SciBERT), Sentence Transformers |
+| Scientific Computing | NumPy, SciPy, Pandas |
+| Visualisasi | Matplotlib, NetworkX |
+| Testing | pytest, pytest-cov |
+| Development | black, flake8 |
+
+## 🗺️ Roadmap
+
+- [x] ✅ Implementasi dasar GCN/GAT dengan PyTorch Geometric
+- [x] ✅ Integrasi SciBERT untuk node features
+- [ ] 🔄 Skrip scraper untuk OpenAlex
+- [ ] 🔄 Evaluasi terhadap metrik "Disruption Index" sebagai baseline
+- [ ] 📋 Dashboard visualisasi interaktif
+- [ ] 📋 API REST untuk akses programatik
+
+## 🤝 Kontribusi
+
+Kami sangat terbuka untuk kontribusi! Cara memulai:
+1. Baca [CONTRIBUTING.md](CONTRIBUTING.md) untuk panduan detail
+2. Cek [Issues](https://github.com/stipwunaraha/citation-graph-neural-embedding/issues) untuk tugas yang tersedia
+3. Fork repositori dan buat pull request
+
+## 📄 Lisensi
+
+Proyek ini dilisensikan di bawah **Lisensi MIT** - lihat berkas [LICENSE](LICENSE) untuk detail.
+
+---
+
+**Penulis & Kontributor**: [@stipwunaraha](https://github.com/stipwunaraha) dan komunitas
+
+**Kata Kunci**: Graph Neural Networks, Citation Analysis, Academic Impact, Semantic Similarity, PyTorch, Scientometrics
