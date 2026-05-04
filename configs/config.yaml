@@ -1,0 +1,38 @@
+# Semantic Echo Configuration
+# Hyperparameters and settings for GNN training
+
+model:
+  name: "HeterogeneousGNN"  # Options: GraphSAGE, GAT, GCN, HeterogeneousGNN
+  hidden_channels: 256
+  num_layers: 3
+  dropout: 0.3
+  heads: 4  # For GAT
+  aggregation: "mean"  # Options: mean, sum, max, attention
+
+embedding:
+  model_name: "allenai/scibert_scivocab_uncased"
+  max_length: 512
+  pooling: "cls"  # Options: cls, mean, max
+
+training:
+  epochs: 100
+  batch_size: 32
+  learning_rate: 0.001
+  weight_decay: 1e-5
+  early_stopping_patience: 10
+  device: "cuda"  # Options: cuda, cpu
+
+data:
+  dataset: "openalex"  # Options: openalex, arxiv, dblp
+  cache_dir: "./data/cache"
+  test_split: 0.2
+  val_split: 0.1
+
+metrics:
+  temporal_decay: 0.95
+  min_citations: 5
+  
+logging:
+  level: "INFO"
+  log_dir: "./logs"
+  save_model_every: 10
